@@ -1,0 +1,185 @@
+﻿@using WebAppVideoCamersOperzal.Models.Entities
+@model Organization
+@{
+    ViewBag.Title = Model.fullName;
+    ViewBag.Breadcrumbs = new Dictionary<string, string>();    
+    ViewBag.Breadcrumbs.Add("", ViewBag.Title);
+}
+
+<h1 class="display-6 border-bottom">@ViewBag.Title</h1>
+
+@if (ViewBag.IsAdmin != null && ViewBag.IsAdmin)
+{
+    <div class="card card-header mb-2">        
+        <div class="col">
+            <a asp-action="Create" asp-controller="Camera" asp-route-id="@Model.code" class="btn btn-primary btn-sm">Добавить камеру</a>
+        </div>
+    </div>
+
+}
+
+@if (Model.camers?.Count() > 0)
+{    
+    <div class="row">
+        @foreach(VideoCamera camera in Model.camers)
+        {
+            <div class="col-6 mb-2">
+                <div class="card shadow-sm container-camera">
+                    <div class="card-body text-center">
+                        <img class="img-thumbnail camera-image" style="display: none;" data-src="@Url.Action("CameraUrl", "Camera", new { id = camera.id })" />
+                        <div class="spinner-border" role="status"></div>
+                        <div class="disabled-text" style="display: none;">
+                            @camera.disabledMessage
+                        </div>
+                    </div>
+                    <div class="card-footer small d-flex justify-content-between">
+                        <span data-role="statusbar">
+                            <i class="fas fa-circle"></i> <span class="status-text">Text</span>
+                        </span>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-secondary btn-sm btn-plus" data-bs-toggle="tooltip" title="Увеличить">
+                                <i class="fas fa-maximize"></i>
+                            </button>
+                            @if (ViewBag.IsAdmin != null && ViewBag.IsAdmin)
+                            {
+                                <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-bars"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" asp-action="Edit" asp-controller="Camera" asp-route-id="@camera.id">
+                                            <i class="fas fa-pencil"></i>
+                                            Редактировать
+                                        </a>
+                                    </li>
+                                    <li>                                        
+                                        <a class="dropdown-item" asp-action="Delete" asp-controller="Camera" asp-route-id="@camera.id">
+                                            <i class="fas fa-trash"></i>
+                                            Удалить
+                                        </a>
+                                    </li>
+                                </ul>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        Видеокамеры не добавлены!
+    </div>
+}
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        document.querySelectorAll('.form-org-delete').forEach((form) => {
+            form.onsubmit = () => {
+                if (!confirm('Вы уверены, что хотите удалить?')) {
+                    return false;
+                }
+            }
+        })
+
+        // увеличение и уменьшение изображения
+        document.querySelectorAll('.btn-plus').forEach((btn) => {
+            btn.onclick = () => {
+                const div = btn.parentNode.parentNode.parentNode.parentNode
+                if (div.classList.contains('col-6')) {
+                    btn.innerHTML = '<i class="fas fa-minimize"></i>'
+                    div.classList.replace('col-6', 'col-12')
+                }
+                else {
+                    btn.innerHTML = '<i class="fas fa-maximize"></i>'
+                    div.classList.replace('col-12', 'col-6')
+                }
+            }
+        })
+        
+        // перебор контейнеров с камерами
+        document.querySelectorAll('.container-camera').forEach((element) => {
+
+            const img = element.querySelector('img')
+            const statusBar = element.querySelector('span[data-role="statusbar"]')
+            const statusText = statusBar.querySelector('span.status-text')
+            const disabledText = img.parentNode.querySelector('div.disabled-text')
+
+            let lastStatusCode = 0
+            let flagFirst = true
+            let downloadImage = new Image()
+
+            statusBar.setAttribute('class', 'text-secondary')
+            statusText.innerHTML = 'Подключение...'
+            
+            // обработчик загрузки изображения
+            downloadImage.onload = function() {
+                img.src = this.src
+                if (flagFirst) {
+                    element.querySelector('.img-thumbnail').style.display = 'inline'
+                    element.querySelector('.spinner-border').style.display = 'none'
+                    flagFirst = false
+                }
+            }
+
+            // скрыть элементы (изображение, загрузчик, описание отключения камеры)
+            function hideAll() {
+                element.querySelector('img').style.display = 'none'
+                element.querySelector('.spinner-border').style.display = 'none'
+                element.querySelector('div.disabled-text').style.display = 'none'            
+            }
+
+            // основаная функция загрузки изображения
+            async function updateImage() {                
+
+                // обновляем изображение, если только вкладка открыта
+                if (!document.hidden) {
+                    
+                    let response = await fetch(img.getAttribute('data-src'))
+
+                    if (lastStatusCode != response.status) {
+                        lastStatusCode = response.status
+                        hideAll(element)
+                    }
+
+                    // ok
+                    if (response.status == 200) {
+                        let blob = await response.blob()
+                        downloadImage.src = URL.createObjectURL(blob)
+                        img.style.display = 'inline'
+                        statusBar.setAttribute('class', 'text-success')
+                        statusText.innerHTML = 'Подключено'
+                    }
+                    // камера отключена
+                    else if (response.status == 222) {
+                        statusBar.setAttribute('class', 'text-warning')
+                        statusText.innerHTML = 'Камера отключена' 
+                        disabledText.innerHTML = await response.text()
+                        disabledText.style.display = 'inline'
+                    }
+                    // ошибка (404, 500, ...)
+                    else if (response.status == 599) {
+                        statusBar.setAttribute('class', 'text-danger')
+                        statusText.innerHTML = "Камера недоступна"
+                        img.src = "/img/no-camera.png"
+                        img.style.display = 'inline'
+                    }
+                    else {
+                        statusBar.setAttribute('class', 'text-danger')
+                        statusText.innerHTML = 'Ошибка: ' + response.statusText + ': ' + response.status
+                    }
+                }
+
+                setTimeout(() => updateImage(), @ViewBag.GetUrlFromCameraInterval)
+            }            
+
+            updateImage().then()
+
+        })
+
+    </script>
+}

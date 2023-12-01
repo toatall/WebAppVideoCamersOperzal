@@ -1,0 +1,68 @@
+﻿@{
+    ViewBag.Title = "Главная";
+}
+@using WebAppVideoCamersOperzal.Models.Entities
+@model IEnumerable<Organization>
+
+<div class="card shadow-sm mt-3 mb-2">
+    <div class="card-header lead text-center">
+        <div class="row">
+            <div class="col">Налоговые органы</div>
+            @if (ViewBag.IsAdmin != null && ViewBag.IsAdmin)
+            {
+            <div class="col-2 text-end">
+                <a asp-action="Create" asp-controller="Organization" class="btn btn-primary btn-sm">Добавить</a>
+            </div>
+            }            
+        </div>        
+    </div>
+    <div class="card-body">
+        @foreach(Organization org in Model)
+        {
+            int countEnabled = org.countCamersEnabled;
+            int countDisabled = org.countCamersDisabled;
+            <div class="btn-group w-100 mb-1">
+                <a asp-action="View" asp-controller="Organization" asp-route-id="@org.code" class="btn btn-light border text-start py-2">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <i class="far fa-building"></i>
+                            @org.name
+                        </div>
+                        <div>
+                             @if (countEnabled > 0)
+                            {
+                                <span class="badge bg-success"><i class="fas fa-video"></i> @countEnabled</span>
+                            }
+                            @if (countDisabled > 0)
+                            {
+                                <span class="badge bg-danger"><i class="fas fa-video"></i> @countDisabled</span>
+                            }
+                        </div>
+                    </div>
+                </a>
+                @if (ViewBag.IsAdmin != null && ViewBag.IsAdmin)
+                {
+                    <div class="btn-group" role="group">
+                        <button id="btn-delete-@org.code" class="btn btn-primary fw-bold py-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <ul class="dropdown-menu" ariaaria-labelledby="btn-delete-@org.code">                            
+                            <li>
+                                <a class="dropdown-item" asp-action="Edit" asp-controller="Organization" asp-route-id="@org.code">
+                                    <i class="fas fa-pencil"></i>
+                                    Редактировать
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-action="Delete" asp-controller="Organization" asp-route-id="@org.code">
+                                    <i class="fas fa-trash"></i> 
+                                    Удалить
+                                </a>                                
+                            </li>                            
+                        </ul>
+                     </div>
+                }
+            </div>
+        }
+    </div>
+</div>

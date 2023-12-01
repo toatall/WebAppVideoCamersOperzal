@@ -1,0 +1,29 @@
+﻿@model WebAppVideoCamersOperzal.Models.Entities.Organization
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<form method="post">
+    <div class="form-floating mb-3">
+        <input type="text" asp-for="code" class="form-control" id="code" placeholder="Код налогового органа">
+        <label for="code">Код налогового органа</label>
+        <span asp-validation-for="code" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="text" asp-for="name" class="form-control" id="name" placeholder="Наименование налогового органа">
+        <label for="name">Наименование налогового органа</label>
+        <span asp-validation-for="name" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="number" asp-for="sort" class="form-control" id="sort" placeholder="Сортировка">
+        <label for="sort">Сортировка</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="date" asp-for="dateEndStr" class="form-control" id="dateEndStr" placeholder="Дата реорганизации">
+        <label for="dateEndStr">Дата реорганизации</label>
+    </div>
+    <div class="border-top pt-2 col-12">
+        <div class="btn-group">
+            <button class="btn btn-primary btn-sm" type="submit">Сохранить</button>
+            <a asp-action="Index" asp-controller="Home" class="btn btn-secondary btn-sm">Отмена</a>
+        </div>
+    </div>
+</form>

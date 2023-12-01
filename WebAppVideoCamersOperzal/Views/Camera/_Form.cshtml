@@ -1,0 +1,39 @@
+﻿@model WebAppVideoCamersOperzal.Models.Entities.VideoCamera
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="card card-body">
+    <form method="post" id="form-camera">            
+        @Html.AntiForgeryToken()
+        <div class="form-floating mb-3">
+            <input type="text" asp-for="url" class="form-control" id="code" placeholder="Ссылка">
+            <label for="code">Ссылка</label>
+            <span asp-validation-for="url" class="text-danger"></span>        
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text" asp-for="user" class="form-control" id="name" placeholder="Имя пользователя">
+            <label for="name">Имя пользователя</label>
+            <span asp-validation-for="user" class="text-danger"></span>
+            @Html.ValidationMessageFor(model => model.url)
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text" asp-for="password" class="form-control" id="sort" placeholder="Пароль">
+            <label for="sort">Пароль</label>
+            @Html.ValidationMessageFor(model => model.url)
+        </div>
+        <div class="mb-3 form-check form-switch">
+            <input type="checkbox" asp-for="disabled" id="disabled" class="form-check-input" role="switch" />
+            <label for="disabled">Отключить камеру</label>
+        </div>
+        <div class="form-floating mb-3">
+            <textarea asp-for="disabledMessage" class="form-control" id="disabledMessage" placeholder="Причина отключения камеры"></textarea>
+            <label for="sort">Причина отключения камеры</label>
+            @Html.ValidationMessageFor(model => model.disabledMessage)
+        </div>
+        <div class="border-top pt-2 col-12">
+            <div class="btn-group">
+                <button class="btn btn-primary btn-sm" type="submit">Сохранить</button>
+                <a asp-action="View" asp-controller="Organization" asp-route-id="@ViewBag.code" class="btn btn-secondary btn-sm">Отмена</a>
+            </div>
+        </div>
+    </form>
+</div>

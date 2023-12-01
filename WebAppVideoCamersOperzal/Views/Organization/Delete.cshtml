@@ -1,0 +1,36 @@
+﻿@model WebAppVideoCamersOperzal.Models.Entities.Organization
+@{
+    ViewBag.Title = $"Удаление: {Model.fullName}";
+    ViewBag.Breadcrumbs = new Dictionary<string, string>();   
+    ViewBag.Breadcrumbs.Add("", ViewBag.Title);
+}
+
+<h1 class="display-6 border-bottom">@ViewBag.Title</h1>
+
+<div class="card">
+    <div class="card-header">
+        <h4>Вы уверены, что хотите удалитиь налоговый орган?</h4>
+    </div>
+    <div class="card-body">
+        <p>
+            <b>Код</b>: @Model.code<br />
+            <b>Наименование</b>: @Model.name            
+        </p>
+        <hr />
+        @if (Model.camers.Count() > 0)
+        {
+            <div class="alert alert-info">
+                <b>Внимение!</b> Камеры также будут удалены!<br />
+                Подключено камер: @Model.camers.Count()                
+            </div>
+        }
+    </div>
+    <div class="card-footer">
+        <form method="post">
+            <div class="btn-group mt-2">
+                <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                <a asp-action="Index" asp-controller="Home" class="btn btn-secondary btn-sm">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>

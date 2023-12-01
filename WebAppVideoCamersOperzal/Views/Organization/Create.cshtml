@@ -1,0 +1,12 @@
+﻿@model WebAppVideoCamersOperzal.Models.Entities.Organization
+@{
+    ViewBag.Title = "Добавление налогового органа";
+    ViewBag.Breadcrumbs = new Dictionary<string, string>();
+    ViewBag.Breadcrumbs.Add("", ViewBag.Title);
+}
+
+<h1 class="display-6 border-bottom">@ViewBag.Title</h1>
+
+<div class="">
+    @await Html.PartialAsync("_Form", Model)
+</div>

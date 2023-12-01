@@ -1,0 +1,15 @@
+﻿@model WebAppVideoCamersOperzal.Models.Entities.VideoCamera
+@{
+    ViewBag.Action = @Url.Action("Create", "Camera");
+    ViewBag.Title = "Добавление камеры";
+}
+@{
+    ViewBag.Breadcrumbs = new Dictionary<string, string>();
+    ViewBag.Breadcrumbs.Add(Url.Action("View", "Organization", new { id = Model.organization.code }), Model.organization.fullName);
+    ViewBag.Breadcrumbs.Add("", ViewBag.Title);
+}
+<h1 class="display-6 border-bottom">@ViewBag.Title</h1>
+
+<div class="">
+    @await Html.PartialAsync("_Form", Model)
+</div>

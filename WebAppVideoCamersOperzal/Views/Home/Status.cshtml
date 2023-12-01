@@ -1,0 +1,108 @@
+﻿@{
+    ViewBag.Title = "Состояние камер";
+}
+@using WebAppVideoCamersOperzal.Models.Entities
+@model IEnumerable<Organization>
+@{    
+    ViewBag.Breadcrumbs = new Dictionary<string, string>();
+    ViewBag.Breadcrumbs.Add("", ViewBag.Title);
+}
+
+<h1 class="display-6 border-bottom">@ViewBag.Title</h1>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Налоговый орган</th>
+            <th>Ссылка</th>
+            <th>Статус</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var org in Model)
+        {
+            @foreach (var cam in org.camers)
+            {
+                <tr>
+                    <td>
+                        @org.fullName
+                    </td>
+                    <td>
+                        @cam.url
+                    </td>
+                    <td>
+                        <span class="camera-status" data-id="@cam.id" data-url="@Url.Action("Status", "Camera", new { id = @cam.id })"></span>
+                    </td>
+                    <td>
+                        <button class="btn btn-light border btn-update-status" type="button" data-id="@cam.id">
+                            <i class="fas fa-rotate"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script type="text/javascript">
+
+        async function checkStatus(url) {
+            let responseResult = null
+            const responseData = await fetch(url)
+                .then(response => {
+                    responseResult = response
+                    return response.json()
+                })
+            if (!responseResult.ok) {
+                return responseData.status
+            }
+            return false
+        }
+
+        async function checkCameraStatus(id) {
+            
+            const element = document.querySelector('.camera-status[data-id="' + id + '"]')
+            const btnUpdate = document.querySelector('.btn-update-status[data-id="' + id + '"]')
+            btnUpdate.setAttribute('disabled', 'disabled')
+
+            element.innerHTML = '<span class="spinner-border" role="status"></span>'
+            
+            const responseData = await fetch(element.getAttribute('data-url'))
+                .then(response => {
+                    responseResult = response
+                    return response.json()
+                })
+
+            if (responseResult.ok) {
+                if (responseData.status) {
+                    element.innerHTML = '<span class="badge bg-success fs-6">OK</span>'
+                }
+                else {
+                    element.innerHTML = '<span class="badge bg-danger fs-6">Недоступна</span>'
+                }
+            }
+            else {
+                element.innerHTML = '<span class="badge bg-danger fs-6">Ошибка проверки</span>'
+            }
+            btnUpdate.removeAttribute('disabled')
+        }
+
+
+
+        document.querySelectorAll('.camera-status').forEach((cam) => {
+            const url = cam.getAttribute('data-url')            
+            checkCameraStatus(cam.getAttribute('data-id'))
+                .then()
+        })
+
+        document.querySelectorAll('.btn-update-status').forEach((btn) => {
+            btn.onclick = () => {
+                checkCameraStatus(btn.getAttribute('data-id'))
+                    .then()
+            }
+        })
+
+    </script>
+}
