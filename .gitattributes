@@ -3,6 +3,9 @@
 ###############################################################################
 * text=auto
 
+# ignore libs
+WebAppVideoCamersOperzal/WebAppVideoCamersOperzal/wwwroot/lib/* linguist-ignore=true
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #
